@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import math
-from xpermutations import *
-from itertools import combinations_with_replacement
+#from xpermutations import *
+from itertools import combinations_with_replacement, combinations, permutations
 
 def print_profile_from_decomposition(a):
 	return 0
@@ -88,19 +88,12 @@ def main():
 	n = EXPERTS_NUM # кол-во экспертов 
 	m = ALTERNATIVS_NUM # кол-во альтернатив
 
-	# print_decomposition (create_decomposition_into_components(10))
-
-	# for c in xselections([i for i in xrange(0, 2)], 2):
-	# 	print c
-	# return 
-
 	all_comb = []
 	for x in create_decomposition_into_components(n):
 		l = interpretate_decomposition_to_sum_list(x, m)
-		for p in xpermutations(l):
+		for p in permutations(l):
 			if not (p in all_comb):
 				all_comb.append(p)
-	# print(all_comb)
 
 	z = len(all_comb)
 	k = 0
@@ -119,10 +112,4 @@ if __name__ == '__main__':
 
 	ALTERNATIVS_NUM = 3
 	EXPERTS_NUM = 3
-
 	main()
-
-#	l = interpretate_decomposition_to_sum_list(create_decomposition_into_components(3)[0])
-#	for uc in xcombinations(l,3): 
-#		print ''.join(str(uc))
-	# print xuniqueCombinations(interpretate_decomposition_to_sum_list(create_decomposition_into_components(3)[0]), 3)

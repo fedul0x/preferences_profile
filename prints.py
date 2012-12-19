@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2012, Ivashin Alexey
 
+import sys
+import getopt
+
 """Additional gernerationg preference profiles methods for result printing."""
 
-def simplify_print_list(l):
+def simplify_print_profile(l):
 	n = len(l)
 	for i in xrange(0, n):
 		print ' '.join(map(lambda x: str(x), l[i]))
@@ -27,3 +30,23 @@ def print_decomposition(l):
 		print st
 	print '===\n'
 
+def command_line_analys(argv):
+	try:
+		opts, args = getopt.getopt(argv, 'n:m:')
+	except getopt.error, msg:
+		return (3, 3)
+    # process options
+	n = -1
+	m = 0
+	for o, a in opts:
+		if o == '-n':
+			n = int(a)
+		if o == '-m':
+			m = int(a)
+	if n*m > 0:
+		return (n, m)
+	else:
+		return (3, 3)
+
+def print_profile_from_decomposition(a):
+	return 0

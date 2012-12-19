@@ -4,12 +4,10 @@
 
 """Core methods for gernerationg preference profiles."""
 
+import sys
 import math
 from itertools import combinations_with_replacement, permutations
-from prints import simplify_print_list
-
-def print_profile_from_decomposition(a):
-	return 0
+from prints import simplify_print_profile, command_line_analys
 
 def create_decomposition_into_components(k):
 	"""Create a decomposition into component for k value,
@@ -68,7 +66,7 @@ def make_profile(combs, c):
 
 def check_profile(a):
 	"""Check generated profile for sum function
-	Sum by columns must eauvivalent experts number value"""
+	Sum by columns must equal to experts number value"""
 	n = EXPERTS_NUM
 	m = ALTERNATIVS_NUM
 	for i in xrange(0, m):
@@ -96,14 +94,15 @@ def main():
 		if check_profile(make_profile(all_comb, c)):
 			print c
 			k = k + 1
-			simplify_print_list(make_profile(all_comb, c))
+			simplify_print_profile(make_profile(all_comb, c))
 	print k
+
 
 
 if __name__ == '__main__':
 	global EXPERTS_NUM
 	global ALTERNATIVS_NUM
 
-	ALTERNATIVS_NUM = 3
-	EXPERTS_NUM = 4
+	EXPERTS_NUM, ALTERNATIVS_NUM = command_line_analys(sys.argv[1:])
+
 	main()

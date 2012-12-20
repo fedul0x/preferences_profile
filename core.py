@@ -7,7 +7,7 @@
 import sys
 import math
 from itertools import combinations_with_replacement, permutations
-from prints import simplify_print_profile, command_line_analys
+from prints import simplify_print_profile, convert_and_print_profile, command_line_analys
 
 def create_decomposition_into_components(k):
 	"""Create a decomposition into component for k value,
@@ -62,7 +62,7 @@ def interpretate_decomposition_to_sum_list(l, e = 0):
 def make_profile(combs, c):
 	"""Return a profile, that generated from 
 	from combinations list combs with indexes from c"""
-	return [combs[i] for i in c]
+	return [[j for j in combs[i]] for i in c]
 
 def check_profile(a):
 	"""Check generated profile for sum function
@@ -95,6 +95,7 @@ def main():
 			print c
 			k = k + 1
 			simplify_print_profile(make_profile(all_comb, c))
+			convert_and_print_profile(make_profile(all_comb, c))
 	print k
 
 

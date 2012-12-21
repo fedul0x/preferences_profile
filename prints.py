@@ -34,8 +34,6 @@ def convert_and_print_profile_recursive(l, i, j, s, result): #l - mxm matrix
 	m = len(result) #alternatives number 
 	n = len(result[0]) #experts number
 	k = 0
-	print result
-	print s
 	if (l[i][j] > 0):
 		if (s == []):
 			return False
@@ -48,7 +46,7 @@ def convert_and_print_profile_recursive(l, i, j, s, result): #l - mxm matrix
 				k = s[0]
 				s = s[1:]
 				cc = cc + 1
-				if cc >=len(s):
+				if cc >len(s):
 					return False
 			result[j][k] = i + 1
 			l[i][j] = l[i][j] - 1
@@ -66,17 +64,7 @@ def convert_and_print_profile_recursive(l, i, j, s, result): #l - mxm matrix
 		if convert_and_print_profile_recursive(l, i, j, s, result):
 			return True
 		else:
-			if len(s)<2:
-				return False
-			else:
-				s.append(k)
-				result[j][k] = 0
-				l[i][j] = l[i][j] + 1
-				print 'tail\n'
-				print result
-				print s
-
-	# simplify_irprint_profile(result)
+			return False
 
 def print_decomposition(l):
 	n = len(l)
@@ -112,7 +100,7 @@ def command_line_analys(argv):
 	if n*m > 0:
 		return (n, m)
 	else:
-		return (4, 3)
+		return (3, 4)
 
 def print_profile_from_decomposition(a):
 	return 0

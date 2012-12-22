@@ -7,16 +7,36 @@ import getopt
 """Additional gernerationg preference profiles methods for result printing."""
 
 def simplify_print_profile(l):
+	"""Just print a profile in numeric style
+	For example this function prints
+	3 0 0
+	0 3 0
+	0 0 3
+	mean
+	a a a
+	b b b
+	c c c
+	"""
 	m = len(l)
 	for i in xrange(0, m):
 		print ' '.join(map(lambda x: str(x), l[i]))
 	print '===\n'
 
-def convert_and_print_profile(l): #l - mxm matrix
+def convert_and_print_profile(l):
+	"""Print a profile in humanable style
+	For example this function prints
+	a a a
+	b b b
+	c c c
+	for profile matrix
+	a a a
+	b b b
+	c c c
+	"""
 	m = len(l) #alternatives number 
 	n = sum(l[0]) #experts number
 	result = [[0 for j in xrange(n)] for i in xrange(m)]
-	convert_and_print_profile_recursive(l, 0, 0, [(z, False) for z in xrange(n)], result)
+	__convert_and_print_profile_recursive(l, 0, 0, [(z, False) for z in xrange(n)], result)
 	for i in xrange(m):
 		p = []
 		for j in xrange(n):
@@ -27,7 +47,9 @@ def convert_and_print_profile(l): #l - mxm matrix
 		print ' '.join(p)
 	print '=======\n'
 
-def convert_and_print_profile_recursive(l, i, j, s, result): #l - mxm matrix
+def __convert_and_print_profile_recursive(l, i, j, s, result):
+	"""Recursive helper subdef for convert_and_print_profile function
+	"""
 	m = len(result) #alternatives number 
 	n = len(result[0]) #experts number
 	while(l[i][j] == 0):
@@ -38,8 +60,6 @@ def convert_and_print_profile_recursive(l, i, j, s, result): #l - mxm matrix
 				return True
 			j = 0
 			s = [(z, False) for z in xrange(n)]
-
-	k = 0
 	cc = 0 #index of current candidate for the substitution
 	for cc in xrange(len(s)):
 		e = s[cc] #acting element
@@ -49,7 +69,7 @@ def convert_and_print_profile_recursive(l, i, j, s, result): #l - mxm matrix
 			s[cc] = (k, True)
 			result[j][k] = i + 1
 			l[i][j] = l[i][j] - 1
-			if convert_and_print_profile_recursive(l, i, j, s, result):
+			if __convert_and_print_profile_recursive(l, i, j, s, result):
 				return True
 			else:
 				s[cc] = (k, False)
@@ -58,6 +78,15 @@ def convert_and_print_profile_recursive(l, i, j, s, result): #l - mxm matrix
 	return False
 
 def print_decomposition(l):
+	"""Print a decomposition
+	For example this function prints
+	3 0 0   ( 3 )
+	1+1+1
+	1 1 0   ( 3 )
+	1+2
+	0 0 1   ( 3 )
+	3
+	"""
 	n = len(l)
 	for i in xrange(0, n):
 		s = 0
@@ -76,6 +105,10 @@ def print_decomposition(l):
 	print '===\n'
 
 def command_line_analys(argv):
+	"""The analysis function of command-line arguments
+	-n number of experts
+	-m number of alternatives
+	"""
 	try:
 		opts, args = getopt.getopt(argv, 'n:m:')
 	except getopt.error, msg:
@@ -91,11 +124,7 @@ def command_line_analys(argv):
 	if n*m > 0:
 		return (n, m)
 	else:
-		return (3, 3)
-
-def print_profile_from_decomposition(a):
-	return 0
-
+		return (4, 4)
 
 if __name__=='__main__':
 	convert_and_print_profile([[1, 1, 1, 0], [1, 1, 0, 1], [1, 0, 0, 2],[0, 1, 2, 0]])

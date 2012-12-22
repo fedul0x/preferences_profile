@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2012, Ivashin Alexey
  
-
 """Core methods for gernerationg preference profiles."""
 
 import sys
 import math
 from itertools import combinations_with_replacement, permutations
-from prints import simplify_print_profile, convert_and_print_profile, command_line_analys
+from prints import simplify_print_profile, convert_and_print_profile, command_line_analys, print_decomposition
 
 def create_decomposition_into_components(k):
 	"""Create a decomposition into component for k value,
@@ -83,6 +82,7 @@ def main():
 
 	all_comb = []
 	for x in create_decomposition_into_components(n):
+		# print_decomposition([x, x, x])
 		l = interpretate_decomposition_to_sum_list(x, m)
 		for p in permutations(l):
 			if not (p in all_comb):
@@ -92,10 +92,11 @@ def main():
 	k = 0
 	for c in combinations_with_replacement([i for i in xrange(0, z)], m):
 		if check_profile(make_profile(all_comb, c)):
-			print c
+			# print c
 			k = k + 1
-			simplify_print_profile(make_profile(all_comb, c))
+			# simplify_print_profile(make_profile(all_comb, c))
 			convert_and_print_profile(make_profile(all_comb, c))
+			
 	print k
 
 

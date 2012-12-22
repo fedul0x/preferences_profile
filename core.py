@@ -92,9 +92,9 @@ def main():
 	k = 0
 	for c in combinations_with_replacement([i for i in xrange(0, z)], m):
 		if check_profile(make_profile(all_comb, c)):
-			print c
+			# print c
 			k = k + 1
-			simplify_print_profile(make_profile(all_comb, c))
+			# simplify_print_profile(make_profile(all_comb, c))
 			convert_and_print_profile(make_profile(all_comb, c))
 	print k
 

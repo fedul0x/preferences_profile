@@ -3,8 +3,9 @@
 
 import sys
 import getopt
+import copy
 
-"""Additional gernerationg preference profiles methods for result printing."""
+"""Additional gernerationg preference profiles methods for result converting and printing."""
 
 def simplify_print_profile(l):
 	m = len(l)
@@ -15,8 +16,11 @@ def simplify_print_profile(l):
 def convert_and_print_profile(l): #l - mxm matrix
 	m = len(l) #alternatives number 
 	n = sum(l[0]) #experts number
+	l_copy = copy.deepcopy(l)
 	result = [[0 for j in xrange(n)] for i in xrange(m)]
-	convert_and_print_profile_recursive(l, 0, 0, [z for z in xrange(n)], result)
+	if convert_and_print_profile_recursive(l, 0, 0, [z for z in xrange(n)], result):
+		return 
+	simplify_print_profile(l_copy)
 	for i in xrange(m):
 		p = []
 		for j in xrange(n):

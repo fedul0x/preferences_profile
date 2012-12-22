@@ -15,20 +15,17 @@ def simplify_print_profile(l):
 def convert_and_print_profile(l): #l - mxm matrix
 	m = len(l) #alternatives number 
 	n = sum(l[0]) #experts number
-	# print l
 	result = [[0 for j in xrange(n)] for i in xrange(m)]
-	#cp = [0 for i in xrange(m)] #current positions (expert) into current level
 	convert_and_print_profile_recursive(l, 0, 0, [z for z in xrange(n)], result)
 	for i in xrange(m):
-		#for j in xrange(n):
-		# print result[i]
-		print ' '.join(map(lambda x: str(x), result[i]))
+		p = []
+		for j in xrange(n):
+			if result[i][j]>0:
+				p.append(chr(96+result[i][j]))
+			else:
+				p.append(str(result[i][j]))
+		print ' '.join(p)
 	print '=======\n'
-	# print m, n
-	
-	# for i in xrange(0, n):
-	# 	print ' '.join(map(lambda x: str(x), l[i]))
-	# print '===\n'
 
 def convert_and_print_profile_recursive(l, i, j, s, result): #l - mxm matrix
 	m = len(result) #alternatives number 

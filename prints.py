@@ -119,11 +119,6 @@ def print_profile_from_decomposition(a):
 
 
 if __name__=='__main__':
-	# convert_and_print_profile([[3, 0, 0], [0, 1, 2], [0, 2, 1]])
-	# convert_and_print_profile([[3, 0, 0], [0, 3, 0], [0, 0, 3]])
-	# convert_and_print_profile([[2, 2], [2, 2]])
-	# convert_and_print_profile([[4, 0], [0, 4]])
-	# convert_and_print_profile([[3, 1], [1, 3]])
-	print '4x3'
-	convert_and_print_profile([[1, 1, 2], [1, 1, 2], [2, 2, 0]])
-	print 'end'
+	convert_and_print_profile([[1, 1, 1, 0], [1, 1, 0, 1], [1, 0, 0, 2],[0, 1, 2, 0]])
+	convert_and_print_profile([[1, 1, 1, 0], [1, 0, 1, 1], [1, 2, 0, 0],[0, 0, 1, 2]])
+	convert_and_print_profile([[1, 1, 1, 0], [0, 1, 1, 1], [2, 1, 0, 0],[0, 0, 1, 2]])

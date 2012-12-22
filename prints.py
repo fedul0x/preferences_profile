@@ -16,7 +16,7 @@ def convert_and_print_profile(l): #l - mxm matrix
 	m = len(l) #alternatives number 
 	n = sum(l[0]) #experts number
 	result = [[0 for j in xrange(n)] for i in xrange(m)]
-	convert_and_print_profile_recursive(l, 0, 0, [z for z in xrange(n)], result)
+	convert_and_print_profile_recursive(l, 0, 0, [(z, False) for z in xrange(n)], result)
 	for i in xrange(m):
 		p = []
 		for j in xrange(n):
@@ -30,50 +30,32 @@ def convert_and_print_profile(l): #l - mxm matrix
 def convert_and_print_profile_recursive(l, i, j, s, result): #l - mxm matrix
 	m = len(result) #alternatives number 
 	n = len(result[0]) #experts number
+	while(l[i][j] == 0):
+		j = j + 1
+		if (j >= m) :
+			i = i + 1
+			if (i>=m):
+				return True
+			j = 0
+			s = [(z, False) for z in xrange(n)]
+
 	k = 0
-	print result
-	print s
-	if (l[i][j] > 0):
-		if (s == []):
-			return False
-		else:
-			k = s[0]
-			s = s[1:]
-			cc = 0
-			while result[j][k]!=0:
-				s.append(k)
-				k = s[0]
-				s = s[1:]
-				cc = cc + 1
-				if cc >=len(s):
-					return False
+	cc = 0 #index of current candidate for the substitution
+	for cc in xrange(len(s)):
+		e = s[cc] #acting element
+		k = e[0]
+		if (result[j][k]==0) and (not e[1]):
+			flag = True
+			s[cc] = (k, True)
 			result[j][k] = i + 1
 			l[i][j] = l[i][j] - 1
-	else:
-		j = j + 1
-		if (j<m):
-			pass
-		else:
-			i = i + 1
-			j = 0
-			s = [z for z in xrange(n)]
-	if (i >= m):
-		return True
-	else:
-		if convert_and_print_profile_recursive(l, i, j, s, result):
-			return True
-		else:
-			if len(s)<2:
-				return False
+			if convert_and_print_profile_recursive(l, i, j, s, result):
+				return True
 			else:
-				s.append(k)
+				s[cc] = (k, False)
 				result[j][k] = 0
 				l[i][j] = l[i][j] + 1
-				print 'tail\n'
-				print result
-				print s
-
-	# simplify_irprint_profile(result)
+	return False
 
 def print_decomposition(l):
 	n = len(l)
@@ -109,7 +91,7 @@ def command_line_analys(argv):
 	if n*m > 0:
 		return (n, m)
 	else:
-		return (4, 3)
+		return (3, 3)
 
 def print_profile_from_decomposition(a):
 	return 0

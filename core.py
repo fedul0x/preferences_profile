@@ -5,6 +5,7 @@
 
 import sys
 import math
+import psycopg2
 from itertools import combinations_with_replacement, permutations
 from prints import simplify_print_profile, convert_and_print_profile, command_line_analys, print_decomposition
 
@@ -79,25 +80,117 @@ def check_profile(a):
 def main():
 	n = EXPERTS_NUM
 	m = ALTERNATIVS_NUM
+	try:
+		conn = psycopg2.connect("host=db.fedul0x dbname=preferences_profile user=postgres password=postgres")
+	except:
+		print 'Can`t connect to database'
+		return 1
 
-	all_comb = []
-	for x in create_decomposition_into_components(n):
-		# print_decomposition([x, x, x])
-		l = interpretate_decomposition_to_sum_list(x, m)
-		for p in permutations(l):
-			if not (p in all_comb):
-				all_comb.append(p)
+	cur = conn.cursor()
 
-	z = len(all_comb)
-	k = 0
-	for c in combinations_with_replacement([i for i in xrange(0, z)], m):
-		if check_profile(make_profile(all_comb, c)):
-			# print c
-			k = k + 1
-			# simplify_print_profile(make_profile(all_comb, c))
-			convert_and_print_profile(make_profile(all_comb, c))
-			
+	try: 
+		cur.execute("CREATE TYPE profile_status AS ENUM ('uncheck', 'not_valid', 'ok')")
+	except:
+		print 'Relation profile_status already exists'
+		conn.commit()
+
+	try: 
+		cur.execute("""
+	CREATE TABLE combination_of_alternative_distribution (
+	id serial PRIMARY KEY,
+	dimension_n integer NOT NULL,
+	dimension_m integer NOT NULL,
+	combination integer[] NOT NULL, 
+	UNIQUE (combination)
+	);""")
+	except:
+		print 'Relation combination_of_alternative_distribution already exists'
+		conn.commit()
+
+	try: 
+		cur.execute("""
+	CREATE TABLE combination_of_combination_of_alternative_distribution (
+	id serial PRIMARY KEY,
+	dimension_n integer NOT NULL,
+	dimension_m integer NOT NULL,
+	combination_of_combination integer[] NOT NULL, 
+	state profile_status,
+	UNIQUE (combination_of_combination)
+	);""")
+	except:
+		print 'Relation combination_of_combination_of_alternative_distribution already exists'
+		conn.commit()
+	conn.commit()
+
+
+
+
+
+	cur.execute("""SELECT DISTINCT(combination) FROM combination_of_alternative_distribution 
+	WHERE dimension_n = %s and dimension_m = %s""", (n, m))
+	all_comb = cur.fetchall()
+	if len(all_comb)==0:
+		all_comb = []
+		for x in create_decomposition_into_components(n):
+			# print_decomposition([x, x, x])
+			l = interpretate_decomposition_to_sum_list(x, m)
+			for p in permutations(l):
+				if not (p in all_comb):
+					all_comb.append(p)
+					# print p
+					try:
+						cur.execute("""
+					INSERT INTO combination_of_alternative_distribution (dimension_n, dimension_m, combination) 
+					VALUES (%s, %s, %s)""", (n, m, [o for o in p]))
+					except:
+						pass
+	conn.commit()
+
+	cur.execute("""SELECT DISTINCT(combination_of_combination) FROM combination_of_combination_of_alternative_distribution 
+	WHERE dimension_n = %s and dimension_m = %s and state = %s LIMIT 100""", (n, m, 'uncheck'))
+	all_comb_of_comb = cur.fetchall()
+	zz = len(all_comb_of_comb)
+	if (zz == 0):
+		z = len(all_comb)
+		k = 0
+		for c in combinations_with_replacement([i for i in xrange(0, z)], m):
+			# try:
+			cur.mogrify
+			cur.execute("""
+				INSERT INTO combination_of_combination_of_alternative_distribution (dimension_n, dimension_m, combination_of_combination, state) 
+				VALUES (%s, %s, %s, %s)""", (n, m, [o for o in c], 'uncheck'))
+			# 	print c
+			# except:
+			# 	print 'W'
+			# 	pass
+	conn.commit()
+
+	currentLimit = 0
+	currentOffset = 0
+	stepLimit = 100
+	
+	cur.execute("""SELECT id, combination_of_combination FROM combination_of_combination_of_alternative_distribution 
+	WHERE dimension_n = %s and dimension_m = %s and state = %s LIMIT 100""", (n, m, 'uncheck'))
+
+	all_comb_of_comb = cur.fetchall()
+	zz = len(all_comb_of_comb)
+	while (zz > 0):
+		for c in all_comb_of_comb:
+			if check_profile(make_profile(all_comb, c)):
+				k = k + 1
+				# simplify_print_profile(make_profile(all_comb, c))
+				convert_and_print_profile(make_profile(all_comb, c))
+		# sql = 
+		cur.execute("""SELECT DISTINCT(combination_of_combination) FROM combination_of_combination_of_alternative_distribution 
+		WHERE dimension_n = %s and dimension_m = %s and state = %s LIMIT 100""", (n, m, 'uncheck'))
+		all_comb_of_comb = cur.fetchall()
+		zz = len(all_comb_of_comb)
+
 	print k
+	conn.commit()
+
+	cur.close()
+	conn.close()
 
 
 

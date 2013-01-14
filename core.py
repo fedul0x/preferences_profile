@@ -6,8 +6,9 @@
 import sys
 import math
 import psycopg2
+from database  import create_connection_and_tables
 from itertools import combinations_with_replacement, permutations
-from prints import simplify_print_profile, convert_and_print_profile, command_line_analys, print_decomposition
+from prints    import simplify_print_profile, convert_and_print_profile, command_line_analys, print_decomposition
 
 def create_decomposition_into_components(k):
 	"""Create a decomposition into component for k value,
@@ -80,55 +81,24 @@ def check_profile(a):
 def main():
 	n = EXPERTS_NUM
 	m = ALTERNATIVS_NUM
-	try:
-		conn = psycopg2.connect("host=db.fedul0x dbname=preferences_profile user=postgres password=postgres")
-	except:
-		print 'Can`t connect to database'
-		return 1
 
-	cur = conn.cursor()
+	(connection, cursor) = create_connection_and_tables()
 
-	try: 
-		cur.execute("CREATE TYPE profile_status AS ENUM ('uncheck', 'not_valid', 'ok')")
-	except:
-		print 'Relation profile_status already exists'
-		conn.commit()
+	k = 0
+	for x in create_decomposition_into_components(n):
+		l = interpretate_decomposition_to_sum_list(x, m)
+		for p in permutations(l):
+			k = k + 1
+	print k
+	return None
 
-	try: 
-		cur.execute("""
-	CREATE TABLE combination_of_alternative_distribution (
-	id serial PRIMARY KEY,
-	dimension_n integer NOT NULL,
-	dimension_m integer NOT NULL,
-	combination integer[] NOT NULL, 
-	UNIQUE (combination)
-	);""")
-	except:
-		print 'Relation combination_of_alternative_distribution already exists'
-		conn.commit()
+	cursor.execute("SELECT state FROM profiles_type WHERE dimension_n = %s and dimension_m = %s", (n, m))
+	if cursor.rowcount() == 1:
+		if 
 
-	try: 
-		cur.execute("""
-	CREATE TABLE combination_of_combination_of_alternative_distribution (
-	id serial PRIMARY KEY,
-	dimension_n integer NOT NULL,
-	dimension_m integer NOT NULL,
-	combination_of_combination integer[] NOT NULL, 
-	state profile_status,
-	UNIQUE (combination_of_combination)
-	);""")
-	except:
-		print 'Relation combination_of_combination_of_alternative_distribution already exists'
-		conn.commit()
-	conn.commit()
-
-
-
-
-
-	cur.execute("""SELECT DISTINCT(combination) FROM combination_of_alternative_distribution 
-	WHERE dimension_n = %s and dimension_m = %s""", (n, m))
-	all_comb = [c[0] for c in cur.fetchall()]
+	cursor.execute("""SELECT DISTINCT(combination) FROM combination_of_alternative_distribution 
+		WHERE dimension_n = %s and dimension_m = %s""", (n, m))
+	# all_comb = [c[0] for c in cur.fetchall()]
 	if len(all_comb)==0:
 		all_comb = []
 		for x in create_decomposition_into_components(n):

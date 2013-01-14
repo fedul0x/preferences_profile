@@ -128,7 +128,7 @@ def main():
 
 	cur.execute("""SELECT DISTINCT(combination) FROM combination_of_alternative_distribution 
 	WHERE dimension_n = %s and dimension_m = %s""", (n, m))
-	all_comb = cur.fetchall()
+	all_comb = [c[0] for c in cur.fetchall()]
 	if len(all_comb)==0:
 		all_comb = []
 		for x in create_decomposition_into_components(n):
@@ -142,49 +142,58 @@ def main():
 						cur.execute("""
 					INSERT INTO combination_of_alternative_distribution (dimension_n, dimension_m, combination) 
 					VALUES (%s, %s, %s)""", (n, m, [o for o in p]))
+						print "Added %s" % (p, )
+						conn.commit()
 					except:
+						print "Error %s" % (p, )
 						pass
-	conn.commit()
+	
 
-	cur.execute("""SELECT DISTINCT(combination_of_combination) FROM combination_of_combination_of_alternative_distribution 
-	WHERE dimension_n = %s and dimension_m = %s and state = %s LIMIT 100""", (n, m, 'uncheck'))
-	all_comb_of_comb = cur.fetchall()
-	zz = len(all_comb_of_comb)
+	cur.execute("""SELECT count(*) FROM combination_of_combination_of_alternative_distribution 
+		WHERE dimension_n = %s and dimension_m = %s and state = %s""", (n, m, 'uncheck'))
+	zz = cur.fetchone()[0]
 	if (zz == 0):
 		z = len(all_comb)
 		k = 0
 		for c in combinations_with_replacement([i for i in xrange(0, z)], m):
-			# try:
-			cur.mogrify
-			cur.execute("""
-				INSERT INTO combination_of_combination_of_alternative_distribution (dimension_n, dimension_m, combination_of_combination, state) 
+			try:
+				cur.execute("""INSERT INTO combination_of_combination_of_alternative_distribution (dimension_n, dimension_m, combination_of_combination, state) 
 				VALUES (%s, %s, %s, %s)""", (n, m, [o for o in c], 'uncheck'))
-			# 	print c
-			# except:
-			# 	print 'W'
-			# 	pass
-	conn.commit()
+				conn.commit()
+				print "Added %s" % (c, )
+			except:
+				print "Error %s" % (c, )
+				pass
 
 	currentLimit = 0
-	currentOffset = 0
+	currentOffset = 1
 	stepLimit = 100
-	
+	currentLimit = currentLimit + stepLimit
 	cur.execute("""SELECT id, combination_of_combination FROM combination_of_combination_of_alternative_distribution 
-	WHERE dimension_n = %s and dimension_m = %s and state = %s LIMIT 100""", (n, m, 'uncheck'))
-
+		WHERE dimension_n = %s and dimension_m = %s and state = %s ORDER BY id LIMIT %s """, (n, m, 'uncheck', currentLimit))
 	all_comb_of_comb = cur.fetchall()
 	zz = len(all_comb_of_comb)
+	k = 0
 	while (zz > 0):
 		for c in all_comb_of_comb:
-			if check_profile(make_profile(all_comb, c)):
+			# print c[1]
+			if check_profile(make_profile(all_comb, c[1])):
 				k = k + 1
 				# simplify_print_profile(make_profile(all_comb, c))
-				convert_and_print_profile(make_profile(all_comb, c))
-		# sql = 
-		cur.execute("""SELECT DISTINCT(combination_of_combination) FROM combination_of_combination_of_alternative_distribution 
-		WHERE dimension_n = %s and dimension_m = %s and state = %s LIMIT 100""", (n, m, 'uncheck'))
+				convert_and_print_profile(make_profile(all_comb, c[1]))
+				cur.execute("""UPDATE combination_of_combination_of_alternative_distribution SET state = 'ok' WHERE id = %s; """, (c[0], ))
+			else:
+				cur.execute("""UPDATE combination_of_combination_of_alternative_distribution SET state = 'not_valid' WHERE id = %s; """, (c[0], ))
+		conn.commit()	
+		currentLimit = currentLimit + stepLimit
+		currentOffset = currentOffset + stepLimit
+		# cur.execute("""SELECT id, combination_of_combination FROM combination_of_combination_of_alternative_distribution 
+			# WHERE dimension_n = %s and dimension_m = %s and state = %s  ORDER BY id LIMIT %s OFFSET %s""", (n, m, 'uncheck', currentLimit, currentOffset))
+		cur.execute("""SELECT id, combination_of_combination FROM combination_of_combination_of_alternative_distribution 
+			WHERE dimension_n = %s and dimension_m = %s and state = %s  ORDER BY id LIMIT %s""", (n, m, 'uncheck', currentLimit))
 		all_comb_of_comb = cur.fetchall()
 		zz = len(all_comb_of_comb)
+		print "%s - %s" % (currentOffset, currentLimit)
 
 	print k
 	conn.commit()

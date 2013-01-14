@@ -92,32 +92,39 @@ def main():
 	print k
 	return None
 
-	cursor.execute("SELECT state FROM profiles_type WHERE dimension_n = %s and dimension_m = %s", (n, m))
-	if cursor.rowcount() == 1:
-		if 
+	cursor.execute("SELECT id, state FROM profiles_type WHERE dimension_n = %s and dimension_m = %s", (n, m))
+	res = cursor.fetchone()
+	if cursor.rowcount == 1:
+		if res[1] == 'processing':
+			all_comb = []
+			for x in create_decomposition_into_components(n):
+				l = interpretate_decomposition_to_sum_list(x, m)
+				for p in permutations(l):
+					if not (p in all_comb):
+						all_comb.append(p)
+						try:
+							cursor.execute("""
+								INSERT INTO combination_of_alternative_distribution (profiles_type_id, combination) 
+								VALUES (%s, %s)""", (res[0], [o for o in p]))
+							print "Added %s" % (p, )
+							connection.commit()
+						except:
+							print "Error %s" % (p, )
+							pass
+			cursor.execute("""UPDATE profiles_type SET state = 'checking' WHERE id = %s; """, (res[0], ))
+			connection.commit()
+		elif res[1] == 'ok':
+			print 'This task is ok!'
+			return 0
+		elif res[1] == 'checking':
+			cursor.execute("""SELECT DISTINCT(combination) FROM combination_of_alternative_distribution 
+				WHERE profiles_type_id = %s""", (res[0],))
+			all_comb = [c[0] for c in cursor.fetchall()]
+		else:
+			print 'Unknown status %s' % (res[1], )
+			return 0
 
-	cursor.execute("""SELECT DISTINCT(combination) FROM combination_of_alternative_distribution 
-		WHERE dimension_n = %s and dimension_m = %s""", (n, m))
-	# all_comb = [c[0] for c in cur.fetchall()]
-	if len(all_comb)==0:
-		all_comb = []
-		for x in create_decomposition_into_components(n):
-			# print_decomposition([x, x, x])
-			l = interpretate_decomposition_to_sum_list(x, m)
-			for p in permutations(l):
-				if not (p in all_comb):
-					all_comb.append(p)
-					# print p
-					try:
-						cur.execute("""
-					INSERT INTO combination_of_alternative_distribution (dimension_n, dimension_m, combination) 
-					VALUES (%s, %s, %s)""", (n, m, [o for o in p]))
-						print "Added %s" % (p, )
-						conn.commit()
-					except:
-						print "Error %s" % (p, )
-						pass
-	
+
 
 	cur.execute("""SELECT count(*) FROM combination_of_combination_of_alternative_distribution 
 		WHERE dimension_n = %s and dimension_m = %s and state = %s""", (n, m, 'uncheck'))

@@ -8,7 +8,7 @@ import math
 import psycopg2
 from database  import create_connection_and_tables
 from itertools import combinations_with_replacement, permutations
-from prints    import simplify_print_profile, convert_and_print_profile, command_line_analys, print_decomposition
+from console_io 	   import print_decomposition, convert_and_print_profile, command_line_analys
 
 def create_decomposition_into_components(k):
 	"""Create a decomposition into component for k value,
@@ -18,18 +18,18 @@ def create_decomposition_into_components(k):
 	that mean 1+1+1, 1+2, 3"""
 	if k <= 0:
 		return []
-	l = [[0 for i in xrange(0, k)]] #list of lists that contatin result
+	l = [[0 for i in range(0, k)]] #list of lists that contatin result
 	l[0][0] = k
 	cis = [1] #list of ci-values for begin of decomposition in current set
 	cs = 0 #current set of components for decomposition
 	while (cs < len(cis)):
 		#ci - index of component for set value
-		for ci in xrange(cis[cs]+1, k+1):
+		for ci in range(cis[cs]+1, k+1):
 			mi = 1 # index of component for get value
 			m = l[cs][mi-1] #value of mi
 			n = m*mi/ci #numbers of posible decompositions
 			if n>=1:
-				for c in xrange(1, math.trunc(n)+1):
+				for c in range(1, math.trunc(n)+1):
 					if (m*mi - c*ci)%mi == 0:
 						l.append(l[cs][:])
 						#change adding item
@@ -49,15 +49,17 @@ def interpretate_decomposition_to_sum_list(l, e = 0):
 	l = [0, 0, 1]
 	return [3, 0, 0] mean 3"""
 	result = []
-	for j in xrange(0, len(l)):
-		result.extend([(j+1) for k in xrange(0, l[j])])
+	for j in range(0, len(l)):
+		print('j :', j, type(j))
+		print('l[j] :', l[j], type(l[j]))
+		result.extend([(j+1) for k in range(0, int(l[j]))])
 	s = 0
-	for j in xrange(0, len(l)):
+	for j in range(0, len(l)):
 		s = s + l[j]*(j+1)
 	if e == 0:
-		result.extend([0 for j in xrange(0, s-len(result))])
+		result.extend([0 for j in range(0, s-len(result))])
 	else:
-		result.extend([0 for j in xrange(0, e-len(result))])
+		result.extend([0 for j in range(0, e-len(result))])
 	return result
 
 def make_profile(combs, c):
@@ -70,9 +72,9 @@ def check_profile(a):
 	Sum by columns must equal to experts number value"""
 	n = EXPERTS_NUM
 	m = ALTERNATIVS_NUM
-	for i in xrange(0, m):
+	for i in range(0, m):
 		s = 0
-		for j in xrange(0, m):
+		for j in range(0, m):
 			s = s + a[j][i]
 		if s != n:
 			return False
@@ -97,12 +99,12 @@ def main():
 
 	cursor.execute("SELECT id, state FROM profiles_type WHERE dimension_n = %s and dimension_m = %s", (n, m))
 	res = cursor.fetchone()
-	print res
+	print(res)
 	if cursor.rowcount != 1:
 		if cursor.rowcount > 1:
 			cursor.execute("DELETE FROM profiles_type WHERE dimension_n = %s and dimension_m = %s",	(n, m))
 			connection.commit()
-		print 'insert processing'
+		print('insert processing')
 		cursor.execute("""INSERT INTO profiles_type (dimension_n, dimension_m, state)
 			VALUES (%s, %s, %s)""", (n, m, 'processing'))
 		cursor.execute("SELECT id, state FROM profiles_type WHERE dimension_n = %s and dimension_m = %s", (n, m))
@@ -119,10 +121,10 @@ def main():
 						cursor.execute("""
 							INSERT INTO combination_of_alternative_distribution (profiles_type_id, combination) 
 							VALUES (%s, %s)""", (res[0], [o for o in p]))
-						print "Added %s" % (p, )
+						print("Added %s" % (p, ))
 						connection.commit()
 					except:
-						print "Error %s" % (p, )
+						print("Error %s" % (p, ))
 						connection.commit()
 		cursor.execute("SELECT id, state FROM profiles_type WHERE dimension_n = %s and dimension_m = %s", (n, m))
 		res = cursor.fetchone()
@@ -131,7 +133,7 @@ def main():
 
 	cursor.execute("SELECT id, state FROM profiles_type WHERE dimension_n = %s and dimension_m = %s", (n, m))
 	res = cursor.fetchone()
-	print res
+	print(res)
 	if cursor.rowcount == 1:
 		if res[1] == 'processing':
 			all_comb = []
@@ -144,30 +146,30 @@ def main():
 							cursor.execute("""
 								INSERT INTO combination_of_alternative_distribution (profiles_type_id, combination) 
 								VALUES (%s, %s)""", (res[0], [o for o in p]))
-							print "Added %s" % (p, )
+							print("Added %s" % (p, ))
 							connection.commit()
 						except:
-							print "Error %s" % (p, )
+							print("Error %s" % (p, ))
 							connection.commit()
 			cursor.execute("""UPDATE profiles_type SET state = 'filling' WHERE id = %s; """, (res[0], ))
 			connection.commit()
 		cursor.execute("SELECT id, state FROM profiles_type WHERE dimension_n = %s and dimension_m = %s", (n, m))
 		res = cursor.fetchone()
-		print res
+		print(res)
 		if res[1] == 'filling':
 			cursor.execute("""SELECT DISTINCT(combination) FROM combination_of_alternative_distribution 
 				WHERE profiles_type_id = %s""", (res[0],))
 			all_comb = [c[0] for c in cursor.fetchall()]
 			z = len(all_comb)
 			k = 0
-			for c in combinations_with_replacement([i for i in xrange(0, z)], m):
+			for c in combinations_with_replacement([i for i in range(0, z)], m):
 				try:
 					cursor.execute("""INSERT INTO combination_of_combination_of_alternative_distribution (profiles_type_id, combination_of_combination, state) 
 						VALUES (%s, %s, %s)""", (res[0], [o for o in c], 'uncheck'))
 					connection.commit()
-					print "Added %s" % (c, )
+					print("Added %s" % (c, ))
 				except:
-					print "Error %s" % (c, )
+					print("Error %s" % (c, ))
 					connection.commit()
 			cursor.execute("""UPDATE profiles_type SET state = 'checking' WHERE id = %s; """, (res[0], ))
 			connection.commit()
@@ -177,7 +179,7 @@ def main():
 
 		cursor.execute("SELECT id, state FROM profiles_type WHERE dimension_n = %s and dimension_m = %s", (n, m))
 		res = cursor.fetchone()
-		print res
+		print(res)
 		if res[1] == 'checking':
 			cursor.execute("""SELECT DISTINCT(combination) FROM combination_of_alternative_distribution 
 				WHERE profiles_type_id = %s""", (res[0],))
@@ -185,9 +187,9 @@ def main():
 		
 		cursor.execute("SELECT id, state FROM profiles_type WHERE dimension_n = %s and dimension_m = %s", (n, m))
 		res = cursor.fetchone()
-		print res
+		print(res)
 		if res[1] == 'ok':
-			print 'This task is ok!'
+			print('This task is ok!')
 			cursor.close()
 			connection.close()
 			return 0
@@ -196,7 +198,7 @@ def main():
 	stepLimit = 1000
 	k = 0
 	for state in ('uncheck', 'process'):
-		print 'STATUS: %s' % state
+		print('STATUS: %s' % state)
 		cursor.execute("""SELECT id, combination_of_combination FROM combination_of_combination_of_alternative_distribution 
 			WHERE profiles_type_id = %s and state = %s ORDER BY id LIMIT %s FOR SHARE""", (res[0], state, stepLimit))
 		all_comb_of_comb = cursor.fetchall()
@@ -230,8 +232,8 @@ def main():
 	cursor.execute("""DELETE FROM combination_of_combination_of_alternative_distribution 
 		WHERE profiles_type_id=%s and state='not_valid';""", (res[0] ,))
 	connection.commit()
-	print k
-	print 'This task is ok!'
+	print(k)
+	print('This task is ok!')
 	cursor.close()
 	connection.close()
 

@@ -18,9 +18,9 @@ def simplify_print_profile(l):
 	c c c
 	"""
 	m = len(l)
-	for i in xrange(0, m):
-		print ' '.join(map(lambda x: str(x), l[i]))
-	print '===\n'
+	for i in range(0, m):
+		print(' '.join(map(lambda x: str(x), l[i])))
+	print('===\n')
 
 def convert_and_print_profile(l):
 	"""Print a profile in humanable style
@@ -35,17 +35,17 @@ def convert_and_print_profile(l):
 	"""
 	m = len(l) #alternatives number 
 	n = sum(l[0]) #experts number
-	result = [[0 for j in xrange(n)] for i in xrange(m)]
-	__convert_and_print_profile_recursive(l, 0, 0, [(z, False) for z in xrange(n)], result)
-	for i in xrange(m):
+	result = [[0 for j in range(n)] for i in range(m)]
+	__convert_and_print_profile_recursive(l, 0, 0, [(z, False) for z in range(n)], result)
+	for i in range(m):
 		p = []
-		for j in xrange(n):
+		for j in range(n):
 			if result[i][j]>0:
 				p.append(chr(96+result[i][j]))
 			else:
 				p.append(str(result[i][j]))
-		print ' '.join(p)
-	print '=======\n'
+		print(' '.join(p))
+	print('=======\n')
 
 def __convert_and_print_profile_recursive(l, i, j, s, result):
 	"""Recursive helper subdef for convert_and_print_profile function
@@ -59,9 +59,9 @@ def __convert_and_print_profile_recursive(l, i, j, s, result):
 			if (i>=m):
 				return True
 			j = 0
-			s = [(z, False) for z in xrange(n)]
+			s = [(z, False) for z in range(n)]
 	cc = 0 #index of current candidate for the substitution
-	for cc in xrange(len(s)):
+	for cc in range(len(s)):
 		e = s[cc] #acting element
 		k = e[0]
 		if (result[j][k]==0) and (not e[1]):
@@ -88,21 +88,21 @@ def print_decomposition(l):
 	3
 	"""
 	n = len(l)
-	for i in xrange(0, n):
+	for i in range(0, n):
 		s = 0
-		for j in xrange(0, len(l[i])):
+		for j in range(0, len(l[i])):
 			s = s + l[i][j]*(j+1)
 		st = ''
-		for j in xrange(0, len(l[i])):
-			sst = '+'.join([str(j+1) for k in xrange(0, l[i][j])])
+		for j in range(0, len(l[i])):
+			sst = '+'.join([str(j+1) for k in range(0, l[i][j])])
 			if sst != '':
 				if st=='':
 					st = st + sst
 				else:
 					st = st + '+' + sst
-		print ' '.join(map(lambda x: str(x), l[i])), '  (', s, ')'
-		print st
-	print '===\n'
+		print(' '.join(map(lambda x: str(x), l[i])), '  (', s, ')')
+		print(st)
+	print('===\n')
 
 def command_line_analys(argv):
 	"""The analysis function of command-line arguments
@@ -111,7 +111,7 @@ def command_line_analys(argv):
 	"""
 	try:
 		opts, args = getopt.getopt(argv, 'n:m:')
-	except getopt.error, msg:
+	except getopt.error:
 		return (3, 3)
     # process options
 	n = -1

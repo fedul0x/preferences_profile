@@ -78,19 +78,22 @@ def check_profile(a):
 			return False
 	return True
 
+def calculate_combination_of_alternative():
+	"""Combination of the alternative distribution number calculating"""
+	n = EXPERTS_NUM
+	m = ALTERNATIVS_NUM
+	k = 0
+	for x in create_decomposition_into_components(n):
+		l = interpretate_decomposition_to_sum_list(x, m)
+		for p in permutations(l):
+			k = k + 1
+	return k
+
 def main():
 	n = EXPERTS_NUM
 	m = ALTERNATIVS_NUM
 
 	(connection, cursor) = create_connection_and_tables()
-
-	# k = 0
-	# for x in create_decomposition_into_components(n):
-	# 	l = interpretate_decomposition_to_sum_list(x, m)
-	# 	for p in permutations(l):
-	# 		k = k + 1
-	# print k
-	# return None
 
 	cursor.execute("SELECT id, state FROM profiles_type WHERE dimension_n = %s and dimension_m = %s", (n, m))
 	res = cursor.fetchone()
@@ -188,17 +191,9 @@ def main():
 			cursor.close()
 			connection.close()
 			return 0
-	# 	else:
-	# 		print 'Unknown status %s' % (res[1], )
-	# 		return 0
-	# else:
 
 
-	# currentLimit = 0
-	# currentOffset = 1
 	stepLimit = 100
-	# currentLimit = currentLimit + stepLimit
-	# TODO add change status to process
 	for state in ('uncheck', 'process'):
 		print 'STATUS: %s' % state
 		cursor.execute("""SELECT id, combination_of_combination FROM combination_of_combination_of_alternative_distribution 
@@ -207,7 +202,6 @@ def main():
 		zz = len(all_comb_of_comb)
 		if (zz>0):
 			ids = ','.join([str(i[0]) for i in all_comb_of_comb])
-			# print ids
 			sql = "UPDATE combination_of_combination_of_alternative_distribution SET state = 'process' WHERE id in ( %s ); " %  (ids, )
 			cursor.execute(sql)
 			connection.commit()
@@ -222,21 +216,15 @@ def main():
 				else:
 					cursor.execute("""UPDATE combination_of_combination_of_alternative_distribution SET state = 'not_valid' WHERE id = %s; """, (c[0], ))
 				connection.commit()	
-			# currentLimit = currentLimit + stepLimit
-			# currentOffset = currentOffset + stepLimit
-			# cur.execute("""SELECT id, combination_of_combination FROM combination_of_combination_of_alternative_distribution 
-				# WHERE dimension_n = %s and dimension_m = %s and state = %s  ORDER BY id LIMIT %s OFFSET %s""", (n, m, 'uncheck', currentLimit, currentOffset))
 			cursor.execute("""SELECT id, combination_of_combination FROM combination_of_combination_of_alternative_distribution 
 				WHERE profiles_type_id = %s and state = %s  ORDER BY id LIMIT %s""", (res[0], state, stepLimit))
 			all_comb_of_comb = cursor.fetchall()
 			zz = len(all_comb_of_comb)
 			if (zz>0):
 				ids = ','.join([str(i[0]) for i in all_comb_of_comb])
-				# print ids
 				sql = "UPDATE combination_of_combination_of_alternative_distribution SET state = 'process' WHERE id in ( %s ); " %  (ids, )
 				cursor.execute(sql)
 				connection.commit()
-			# print "%s - %s" % (currentOffset, currentLimit)
 	cursor.execute("""UPDATE profiles_type SET state = 'ok' WHERE id = %s; """, (res[0], ))
 	print k
 	connection.commit()

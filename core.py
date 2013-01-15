@@ -193,11 +193,11 @@ def main():
 			return 0
 
 
-	stepLimit = 100
+	stepLimit = 1000
 	for state in ('uncheck', 'process'):
 		print 'STATUS: %s' % state
 		cursor.execute("""SELECT id, combination_of_combination FROM combination_of_combination_of_alternative_distribution 
-			WHERE profiles_type_id = %s and state = %s ORDER BY id LIMIT %s""", (res[0], state, stepLimit))
+			WHERE profiles_type_id = %s and state = %s ORDER BY id LIMIT %s FOR SHARE""", (res[0], state, stepLimit))
 		all_comb_of_comb = cursor.fetchall()
 		zz = len(all_comb_of_comb)
 		if (zz>0):
@@ -217,7 +217,7 @@ def main():
 					cursor.execute("""UPDATE combination_of_combination_of_alternative_distribution SET state = 'not_valid' WHERE id = %s; """, (c[0], ))
 				connection.commit()	
 			cursor.execute("""SELECT id, combination_of_combination FROM combination_of_combination_of_alternative_distribution 
-				WHERE profiles_type_id = %s and state = %s  ORDER BY id LIMIT %s""", (res[0], state, stepLimit))
+				WHERE profiles_type_id = %s and state = %s  ORDER BY id LIMIT %s FOR SHARE""", (res[0], state, stepLimit))
 			all_comb_of_comb = cursor.fetchall()
 			zz = len(all_comb_of_comb)
 			if (zz>0):

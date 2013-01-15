@@ -194,6 +194,7 @@ def main():
 
 
 	stepLimit = 1000
+	k = 0
 	for state in ('uncheck', 'process'):
 		print 'STATUS: %s' % state
 		cursor.execute("""SELECT id, combination_of_combination FROM combination_of_combination_of_alternative_distribution 
@@ -205,7 +206,6 @@ def main():
 			sql = "UPDATE combination_of_combination_of_alternative_distribution SET state = 'process' WHERE id in ( %s ); " %  (ids, )
 			cursor.execute(sql)
 			connection.commit()
-		k = 0
 		while (zz > 0):
 			for c in all_comb_of_comb:
 				if check_profile(make_profile(all_comb, c[1])):
@@ -226,8 +226,11 @@ def main():
 				cursor.execute(sql)
 				connection.commit()
 	cursor.execute("""UPDATE profiles_type SET state = 'ok' WHERE id = %s; """, (res[0], ))
-	print k
 	connection.commit()
+	cursor.execute("""DELETE FROM combination_of_combination_of_alternative_distribution 
+		WHERE profiles_type_id=%s and state='not_valid';""", (res[0] ,))
+	connection.commit()
+	print k
 	print 'This task is ok!'
 	cursor.close()
 	connection.close()

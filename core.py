@@ -199,30 +199,44 @@ def main():
 	stepLimit = 100
 	# currentLimit = currentLimit + stepLimit
 	# TODO add change status to process
-	cursor.execute("""SELECT id, combination_of_combination FROM combination_of_combination_of_alternative_distribution 
-		WHERE profiles_type_id = %s and state = %s ORDER BY id LIMIT %s """, (res[0], 'uncheck', stepLimit))
-	all_comb_of_comb = cursor.fetchall()
-	zz = len(all_comb_of_comb)
-	k = 0
-	while (zz > 0):
-		for c in all_comb_of_comb:
-			if check_profile(make_profile(all_comb, c[1])):
-				k = k + 1
-				# simplify_print_profile(make_profile(all_comb, c))
-				convert_and_print_profile(make_profile(all_comb, c[1]))
-				cursor.execute("""UPDATE combination_of_combination_of_alternative_distribution SET state = 'ok' WHERE id = %s; """, (c[0], ))
-			else:
-				cursor.execute("""UPDATE combination_of_combination_of_alternative_distribution SET state = 'not_valid' WHERE id = %s; """, (c[0], ))
-			connection.commit()	
-		# currentLimit = currentLimit + stepLimit
-		# currentOffset = currentOffset + stepLimit
-		# cur.execute("""SELECT id, combination_of_combination FROM combination_of_combination_of_alternative_distribution 
-			# WHERE dimension_n = %s and dimension_m = %s and state = %s  ORDER BY id LIMIT %s OFFSET %s""", (n, m, 'uncheck', currentLimit, currentOffset))
+	for state in ('uncheck', 'process'):
+		print 'STATUS: %s' % state
 		cursor.execute("""SELECT id, combination_of_combination FROM combination_of_combination_of_alternative_distribution 
-			WHERE profiles_type_id = %s and state = %s  ORDER BY id LIMIT %s""", (res[0], 'uncheck', stepLimit))
+			WHERE profiles_type_id = %s and state = %s ORDER BY id LIMIT %s""", (res[0], state, stepLimit))
 		all_comb_of_comb = cursor.fetchall()
 		zz = len(all_comb_of_comb)
-		# print "%s - %s" % (currentOffset, currentLimit)
+		if (zz>0):
+			ids = ','.join([str(i[0]) for i in all_comb_of_comb])
+			# print ids
+			sql = "UPDATE combination_of_combination_of_alternative_distribution SET state = 'process' WHERE id in ( %s ); " %  (ids, )
+			cursor.execute(sql)
+			connection.commit()
+		k = 0
+		while (zz > 0):
+			for c in all_comb_of_comb:
+				if check_profile(make_profile(all_comb, c[1])):
+					k = k + 1
+					# simplify_print_profile(make_profile(all_comb, c))
+					convert_and_print_profile(make_profile(all_comb, c[1]))
+					cursor.execute("""UPDATE combination_of_combination_of_alternative_distribution SET state = 'ok' WHERE id = %s; """, (c[0], ))
+				else:
+					cursor.execute("""UPDATE combination_of_combination_of_alternative_distribution SET state = 'not_valid' WHERE id = %s; """, (c[0], ))
+				connection.commit()	
+			# currentLimit = currentLimit + stepLimit
+			# currentOffset = currentOffset + stepLimit
+			# cur.execute("""SELECT id, combination_of_combination FROM combination_of_combination_of_alternative_distribution 
+				# WHERE dimension_n = %s and dimension_m = %s and state = %s  ORDER BY id LIMIT %s OFFSET %s""", (n, m, 'uncheck', currentLimit, currentOffset))
+			cursor.execute("""SELECT id, combination_of_combination FROM combination_of_combination_of_alternative_distribution 
+				WHERE profiles_type_id = %s and state = %s  ORDER BY id LIMIT %s""", (res[0], state, stepLimit))
+			all_comb_of_comb = cursor.fetchall()
+			zz = len(all_comb_of_comb)
+			if (zz>0):
+				ids = ','.join([str(i[0]) for i in all_comb_of_comb])
+				# print ids
+				sql = "UPDATE combination_of_combination_of_alternative_distribution SET state = 'process' WHERE id in ( %s ); " %  (ids, )
+				cursor.execute(sql)
+				connection.commit()
+			# print "%s - %s" % (currentOffset, currentLimit)
 	cursor.execute("""UPDATE profiles_type SET state = 'ok' WHERE id = %s; """, (res[0], ))
 	print k
 	connection.commit()

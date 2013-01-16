@@ -17,23 +17,25 @@ def create_connection_and_tables():
 	try:
 		conn = connect("host=db.fedul0x dbname=preferences_profile user=postgres password=postgres")
 	except OperationalError as e:
-		print(e.message)
+		# print(e.message)
 		raise
 	cur = conn.cursor()
 	try: 
 		cur.execute("CREATE TYPE profile_status AS ENUM ('uncheck', 'process', 'not_valid', 'ok')")
 	except ProgrammingError as e:
-		print(e.message)
+		# print(e.message)
+		pass
 	except:
-		print(e.message)
+		# print(e.message)
 		raise
 	conn.commit()
 	try: 
 		cur.execute("CREATE TYPE profile_type_status AS ENUM ('processing', 'filling', 'checking', 'ok')")
 	except ProgrammingError as e:
-		print(e.message)
+		# print(e.message)
+		pass
 	except:
-		print(e.message)
+		# print(e.message)
 		raise
 	conn.commit()
 	try: 
@@ -45,9 +47,10 @@ def create_connection_and_tables():
 	state profile_type_status
 	);""")
 	except ProgrammingError as e:
-		print(e.message)
+		# print(e.message)
+		pass
 	except:
-		print(e.message)
+		# print(e.message)
 		raise
 	conn.commit()
 
@@ -60,9 +63,10 @@ def create_connection_and_tables():
 	UNIQUE (profiles_type_id, combination)
 	);""")
 	except ProgrammingError as e:
-		print(e.message)
+		pass
+		# print(e.message)
 	except:
-		print(e.message)
+		# print(e.message)
 		raise
 	conn.commit()
 	try: 
@@ -75,9 +79,10 @@ def create_connection_and_tables():
 	UNIQUE (profiles_type_id, combination_of_combination)
 	);""")
 	except ProgrammingError as e:
-		print(e.message)
+		# print(e.message)
+		pass
 	except:
-		print(e.message)
+		# print(e.message)
 		raise
 	conn.commit()
 	return (conn, cur)

@@ -1,0 +1,39 @@
+$def with (profiles_types, comb_of_combs)
+<html>
+<boby>
+<table border='1'>
+	<thead>
+		<td>id</td>
+		<td>dimension</td>
+		<td>state</td>
+	</thead>
+$for pt in profiles_types:
+	<tr>
+		<td>$pt.id</td> 
+		<td>$pt.dimension_n x $pt.dimension_m</td>
+		<td>$pt.state</td>
+	</tr>
+</table>
+<hr />
+$for cc in comb_of_combs:
+	
+	<br /><br />
+	$cc[2]
+	<table border='1'>
+		<thead>
+			<td>id</td>
+			<td>combination_of_combination</td>
+			<td>state</td>
+		</thead>
+	$for i in cc[0]:
+		<tr>
+			<td>$i.id</td> 
+			<td>$i.combination_of_combination</td>
+			<td>$i.state</td>
+		</tr>
+	<tr><td colspan='3'> <strong> all: $cc[1] </strong> </td></tr>
+	</table>
+<hr />
+</boby>
+</html>
+
